@@ -14,5 +14,3 @@ api.add_resource(Hoteis, '/hoteis')
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-# testando
