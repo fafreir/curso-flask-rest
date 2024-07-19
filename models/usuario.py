@@ -29,7 +29,7 @@ class UserModel(banco.Model):
         banco.session.add(self)
         banco.session.commit()
 
-    def delete_hotel(self):
+    def delete_user(self):
         banco.session.delete(self)
         banco.session.commit()
     
