@@ -1,4 +1,4 @@
-from flask_sqlalchemy import Resource, reqparse
+from flask_restful import Resource, reqparse
 from models.usuario import UserModel
 
 
@@ -31,7 +31,8 @@ class UserRegister(Resource):
         dados = atributos.parse_args()
 
         if UserModel.find_by_login(dados['login']):
-            return {"message": "The login '{}' already exists.".format{dados['login']}}
+            # return {"message": "The login '{}' already exists.".format{dados['login']}}
+            return {"message": f'The login {dados["login"]} already exists'}
 
         user = UserModel(**dados)
         user.save_user()
