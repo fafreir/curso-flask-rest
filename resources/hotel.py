@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
+from flask_jwt_extended import jwt_required, create_access_token
 
 hoteis = [
     {
@@ -35,8 +36,10 @@ class Hoteis(Resource):
 class Hotel(Resource):
     argumentos = reqparse.RequestParser()
     # Limita para não colocar dados não solicitados
-    argumentos.add_argument('nome', type=str, required=True, help="The field 'nome' cannot be left blank!")
-    argumentos.add_argument('estrelas', type=float, required=True, help="The field 'estrelas' cannot be left blank!")
+    argumentos.add_argument('nome', type=str, required=True,
+                            help="The field 'nome' cannot be left blank!")
+    argumentos.add_argument('estrelas', type=float, required=True,
+                            help="The field 'estrelas' cannot be left blank!")
     argumentos.add_argument('diaria')
     argumentos.add_argument('cidade')
 
@@ -46,17 +49,20 @@ class Hotel(Resource):
             return hotel.json()
         return {'message': 'Hotel not found'}, 404
 
+    @jwt_required()
     def post(self, hotel_id):
         if HotelModel.find_hotel(hotel_id):
-            return {'message': 'Hotel id "{}" already exists'.format(hotel_id)}, 400
+            return {'message': f'Hotel id "{hotel_id}" already exists'}, 400
         dados = Hotel.argumentos.parse_args()
         hotel = HotelModel(hotel_id, **dados)
         try:
             hotel.save_hotel()
         except:
-            return {'message':'An internal error ocurred trying to save'}, 500 # Internal Server Error
+            # Internal Server Error
+            return {'message': 'An internal error ocurred trying to save'}, 500
         return hotel.json()
 
+    @jwt_required()
     def put(self, hotel_id):
         dados = Hotel.argumentos.parse_args()
 
@@ -69,9 +75,11 @@ class Hotel(Resource):
         try:
             hotel.save_hotel()
         except:
-            return {'message':'An internal error ocurred trying to save'}, 500 # Internal Server Error
+            # Internal Server Error
+            return {'message': 'An internal error ocurred trying to save'}, 500
         return hotel.json(), 201  # Created
 
+    @jwt_required()
     def delete(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
         if hotel:
