@@ -1,35 +1,74 @@
 from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
 from flask_jwt_extended import jwt_required, create_access_token
+import sqlite3
 
-hoteis = [
-    {
-        'hotel_id': 'alpha',
-        'nome': 'Alpha Hotel',
-        'estrelas': 4.3,
-        'diaria': 420.34,
-        'cidade': 'Rio de Janeiro'
-    },
-    {
-        'hotel_id': 'bravo',
-        'nome': 'Bravo Hotel',
-        'estrelas': 4.4,
-        'diaria': 380.90,
-        'cidade': 'Santa Catarina'
-    },
-    {
-        'hotel_id': 'charlie',
-        'nome': 'Charlie Hotel',
-        'estrelas': 3.8,
-        'diaria': 320.20,
-        'cidade': 'Santa Catarina'
+
+def normalize_path_params(cidade=None,
+                          estrelas_min=0,
+                          estrelas_max=5,
+                          diaria_min=0,
+                          diaria_max=1000,
+                          limit=50,
+                          offset=0, **dados):
+    if cidade:
+        return {
+            'estrelas_min': estrelas_min,
+            'estrelas_max': estrelas_max,
+            'diaria_min': diaria_min,
+            'diaria_max': diaria_max,
+            'cidade': cidade,
+            'limit': limit,
+            'offset': offset
+        }
+    return {
+        'estrelas_min': estrelas_min,
+        'estrelas_max': estrelas_max,
+        'diaria_min': diaria_min,
+        'diaria_max': diaria_max,
+        'limit': limit,
+        'offset': offset
     }
-]
+
+
+path_params = reqparse.RequestParser()
+path_params.add_argument('cidade', type=str)
+path_params.add_argument('estrelas_min', type=float)
+path_params.add_argument('estrelas_max', type=float)
+path_params.add_argument('diaria_min', type=float)
+path_params.add_argument('diaria_max', type=float)
+path_params.add_argument('limit', type=float)
+path_params.add_argument('offset', type=float)
 
 
 class Hoteis(Resource):
     def get(self):
-        # SELECT * FROM HOTEIS
+        # Abre conexão com o banco
+        connection = sqlite3.connect('banco.db')
+
+        # Executa os comandos SQL
+        cursor = connection.cursor()
+
+        dados = path_params.parse_args()
+        dados_validos = {chave: dados[chave]
+                         for chave in dados if dados[chave] is not None}
+        parametros = normalize_path_params(**dados_validos)
+
+        if not parametros.get('cidade'):
+            consulta = "SELECT * FROM hoteis \
+                WHERE (estrelas > ? and estrelas < ?) \
+                    and (diaria > ? and diaria < ?) \
+                        LIMIT ? OFFSET ?"
+            tupla = tupla([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta, tupla)
+        else:
+            consulta = "SELECT * FROM hoteis \
+                WHERE (estrelas > ? and estrelas < ?) \
+                    and (diaria > ? and diaria < ?) \
+                    and cidade = ? LIMIT ? OFFSET ?"
+            tupla = tupla([parametros[chave] for chave in parametros])
+            resultado = cursor.execute(consulta, tupla)
+
         return {'hoteis': [hotel.json() for hotel in HotelModel.query.all()]}
 
 
