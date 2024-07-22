@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from models.hotel import HotelModel
-from flask_jwt_extended import jwt_required, create_access_token
+from flask_jwt_extended import jwt_required
 import sqlite3
 
 
@@ -44,7 +44,7 @@ path_params.add_argument('offset', type=float)
 class Hoteis(Resource):
     def get(self):
         # Abre conexão com o banco
-        connection = sqlite3.connect('banco.db')
+        connection = sqlite3.connect({caminho_completo})
 
         # Executa os comandos SQL
         cursor = connection.cursor()
@@ -59,14 +59,14 @@ class Hoteis(Resource):
                 WHERE (estrelas > ? and estrelas < ?) \
                     and (diaria > ? and diaria < ?) \
                         LIMIT ? OFFSET ?"
-            tupla = tupla([parametros[chave] for chave in parametros])
+            tupla = tuple([parametros[chave] for chave in parametros])
             resultado = cursor.execute(consulta, tupla)
         else:
             consulta = "SELECT * FROM hoteis \
                 WHERE (estrelas > ? and estrelas < ?) \
                     and (diaria > ? and diaria < ?) \
                     and cidade = ? LIMIT ? OFFSET ?"
-            tupla = tupla([parametros[chave] for chave in parametros])
+            tupla = tuple([parametros[chave] for chave in parametros])
             resultado = cursor.execute(consulta, tupla)
 
         hoteis = []
@@ -137,3 +137,5 @@ class Hotel(Resource):
                 return {'message': 'An error ocurred trying to delete hotel.'}, 500
             return {'message': 'Hotel deleted.'}
         return {'message': 'Hotel not found.'}, 404
+
+from app import caminho_completo
