@@ -1,12 +1,8 @@
 from sql_alchemy import banco
 
-
 class HotelModel(banco.Model):
-    # Informa que é uma tabela no banco de dados
-    # Informa o nome da tabela
     __tablename__ = 'hoteis'
 
-    # atributos e tipos
     hotel_id = banco.Column(banco.String, primary_key=True)
     nome = banco.Column(banco.String(80))
     estrelas = banco.Column(banco.Float(precision=1))
@@ -31,7 +27,6 @@ class HotelModel(banco.Model):
 
     @classmethod
     def find_hotel(cls, hotel_id):
-        # SELECT * FROM hoteis WHERE hotel_id = $hotel_id
         hotel = cls.query.filter_by(hotel_id=hotel_id).first()
         if hotel:
             return hotel

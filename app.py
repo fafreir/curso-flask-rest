@@ -6,16 +6,16 @@ from resources.usuario import User, UserRegister, UserLogin, UserLogout
 from flask_jwt_extended import JWTManager
 import os
 
-diretorio_atual = os.getcwd()
-DATABASE = 'banco.db'
-caminho_completo = os.path.join(diretorio_atual, DATABASE)
+diretorio_atual = os.path.abspath(os.path.dirname(__file__))
+db_caminho = os.path.join(diretorio_atual, 'bk.db')
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{caminho_completo}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_caminho}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'DontTellAnyone'
 app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JSON_AS_ASCII'] = False
 api = Api(app)
 jwt = JWTManager(app)
 
