@@ -47,10 +47,12 @@ class Hoteis(Resource):
 class Hotel(Resource):
     atributos = reqparse.RequestParser()
     atributos.add_argument('nome', type=str, required=True,
-                           help="The field 'nome' cannot be left blank.")
-    atributos.add_argument('estrelas')
-    atributos.add_argument('diaria')
-    atributos.add_argument('cidade')
+                           help="The field 'nome' cannot be left blank.", location='values')
+    atributos.add_argument('estrelas', location='values')
+    atributos.add_argument('diaria', location='values')
+    atributos.add_argument('cidade', location='values')
+    atributos.add_argument('site_id', type=int, required=True,
+                           help="Every hotel needs to be linked with a site.", location='values')
 
     def get(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)

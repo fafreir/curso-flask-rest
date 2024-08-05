@@ -20,7 +20,7 @@ class Site(Resource):
             return {'message': f'The site {url} already exists.'}, 400
         site = SiteModel(url)
         try:
-            site.save()
+            site.save_site()
         except:
             return {'message': 'An internal error occured trying to create a new site.'}, 500
         return site.json()

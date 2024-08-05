@@ -20,7 +20,7 @@ class SiteModel(banco.Model):
 
     @classmethod
     def find_site(cls, url):
-        site = cls.query.filter(url=url).first()
+        site = cls.query.filter_by(url=url).first()
         if site:
             return site
         return None
