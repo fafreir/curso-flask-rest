@@ -33,6 +33,7 @@ class Hoteis(Resource):
             resultado = cursor.execute(consulta_com_cidade, tupla)
 
         hoteis = []
+        # Atualização
         for linha in resultado:
             hoteis.append({
                 'hotel_id': linha[0],
