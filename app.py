@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from datetime import timedelta
 from flask_restful import Api
 from blacklist import BLACKLIST
 from resources.hotel import Hoteis, Hotel
@@ -14,9 +15,12 @@ db_caminho = os.path.join(diretorio_atual, 'banco.db')
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_caminho}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = 'DontTellAnyone'
+app.config['JWT_SECRET_KEY'] = 'DontTellMe'
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JSON_AS_ASCII'] = False
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
+
 api = Api(app)
 jwt = JWTManager(app)
 

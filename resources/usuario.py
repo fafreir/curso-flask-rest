@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from blacklist import BLACKLIST
 from models.usuario import UserModel
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required, create_refresh_token
 import hmac
 
 atributos = reqparse.RequestParser()
@@ -52,8 +52,10 @@ class UserLogin(Resource):
         user = UserModel.find_by_login(dados['login'])
 
         if user and hmac.compare_digest(user.senha, dados['senha']):
+            access_token = create_access_token(identity="example_user")
+            refresh_token = create_refresh_token(identity=user.user_id)
             token_de_acesso = create_access_token(identity=user.user_id)
-            return {'acess_token': token_de_acesso}, 200
+            return {'acess_token': token_de_acesso, "refresh_token": refresh_token}, 200
         return {'message': 'The username or password is incorrect'}, 401
 
 

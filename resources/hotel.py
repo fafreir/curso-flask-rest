@@ -35,10 +35,12 @@ class Hoteis(Resource):
         hoteis = []
         for linha in resultado:
             hoteis.append({
-                'hoteis_id': linha[0],
-                'estrelas': linha[1],
-                'diaria': linha[2],
-                'cidade': linha[3]
+                'hotel_id': linha[0],
+                'nome': linha[1],
+                'estrelas': linha[2],
+                'diaria': linha[3],
+                'cidade': linha[4],
+                'site_id': linha[5]
             })
 
         return {'hoteis': hoteis}  # SELECT * FROM hoteis
@@ -47,12 +49,12 @@ class Hoteis(Resource):
 class Hotel(Resource):
     atributos = reqparse.RequestParser()
     atributos.add_argument('nome', type=str, required=True,
-                           help="The field 'nome' cannot be left blank.", location='values')
-    atributos.add_argument('estrelas', location='values')
-    atributos.add_argument('diaria', location='values')
-    atributos.add_argument('cidade', location='values')
+                           help="The field 'nome' cannot be left blank.")
+    atributos.add_argument('estrelas')
+    atributos.add_argument('diaria')
+    atributos.add_argument('cidade')
     atributos.add_argument('site_id', type=int, required=True,
-                           help="Every hotel needs to be linked with a site.", location='values')
+                           help="Every hotel needs to be linked with a site.")
 
     def get(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
@@ -60,7 +62,7 @@ class Hotel(Resource):
             return hotel.json()
         return {'message': 'Hotel not found.'}, 404
 
-    @jwt_required
+    @jwt_required()
     def post(self, hotel_id):
         if HotelModel.find_hotel(hotel_id):
             # Bad Request
@@ -75,7 +77,7 @@ class Hotel(Resource):
             return {"message": "An error ocurred trying to create hotel."}, 500
         return hotel.json(), 201
 
-    @jwt_required
+    @jwt_required()
     def put(self, hotel_id):
         dados = Hotel.atributos.parse_args()
         hotel = HotelModel(hotel_id, **dados)
@@ -88,7 +90,7 @@ class Hotel(Resource):
         hotel.save_hotel()
         return hotel.json(), 201
 
-    @jwt_required
+    @jwt_required()
     def delete(self, hotel_id):
         hotel = HotelModel.find_hotel(hotel_id)
         if hotel:
